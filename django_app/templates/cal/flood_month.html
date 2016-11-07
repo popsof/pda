@@ -1,0 +1,139 @@
+{% extends 'common/base.html' %}
+{% block content %}
+
+<table id="id-maintable" class="table table-bordered">
+  <tbody>
+    {{ table_data }}
+  </tbody>
+</table>
+
+{% endblock %}
+{% block script %}
+<script>
+var curIndex = 0;
+
+var firstYear = 0;
+var firstMonth = 0;
+var lastYear = 0;
+var lastMonth = 0;
+var reqYear = 0;
+var reqMonth = 0;
+
+function updateFirst() {
+  var tdFirst = $("td[year]:first");
+  firstYear = tdFirst.attr("year");
+  firstMonth = tdFirst.attr("month");
+}
+
+function updateLast() {
+  var tdLast = $("td[year]:last");
+  lastYear = tdLast.attr("year");
+  lastMonth = tdLast.attr("month");
+}
+
+function scrollToToday() {
+  var body = $('html, body');
+  var today = $('#id-today');
+  if( today.length == 0 )
+  {
+    initPosition();
+    return;
+  }
+
+  body.animate({
+    scrollTop: today.offset().top - $(window).height() / 2
+  }, 500, "swing", initPosition );
+}
+
+function initPosition()
+{
+  $(document).scroll(function() {
+    var maxHeight = $(document).height();
+    var scrollTop = $(window).scrollTop();
+    var currentScroll = $(window).scrollTop() + $(window).height();
+
+    msg = "docHeight:" + maxHeight + " ";
+    msg += "scrollTop:" + $(window).scrollTop() + " ";
+    msg += "height:" + $(window).height();
+
+    msg += ""
+
+    $("#id-navmsg").text(msg);
+
+    if(scrollTop < 100)
+    {
+      Prepend();
+      // var heightBefore = $("#mainlist").height();
+      // $("#mainlist").prepend("<h3>Prepended item" + curIndex + "</h3>");
+      // var heightAfter = $("#mainlist").height();
+      // curIndex++;
+      // if( heightBefore != heightAfter )
+      //   $(window).scrollTop(scrollTop + heightAfter - heightBefore);
+    }
+    else if(maxHeight <= currentScroll+100 )
+    {
+      Append();
+      // $("#mainlist").append("<h3>Appended item" + curIndex + "</h3>");
+      // curIndex++;
+    }
+
+  })
+}
+
+$(document).ready(function() {
+  updateFirst();
+  updateLast();
+
+  // $(window).scrollTop(300)
+  scrollToToday();
+
+})
+
+function Append()
+{
+  if( lastYear == 9999 && lastMonth == 12 )
+    return;
+
+  if( lastYear == reqYear && lastMonth == reqMonth )
+    return;
+
+  reqYear = lastYear
+  reqMonth = lastMonth
+  $.ajax({method: 'GET',
+          url: '/cal/flood/next_month/' + reqYear + '/' + reqMonth + '/' })
+  .done( function(response, textStatus) {
+    var mainTable = $("#id-maintable>tbody");
+    mainTable.append(response);
+    updateLast();
+  })
+}
+
+function Prepend()
+{
+  if( firstYear == 2 && firstMonth == 1 )
+    return;
+
+  if( firstYear == reqYear && firstMonth == reqMonth )
+    return;
+
+  reqYear = firstYear
+  reqMonth = firstMonth
+  $.ajax({method: 'GET',
+          url: '/cal/flood/prev_month/' + reqYear + '/' + reqMonth + '/' })
+  .done( function(response, textStatus) {
+    var mainTable = $("#id-maintable>tbody");
+    var heightBefore = mainTable.height();
+    mainTable.prepend(response);
+    var heightAfter = mainTable.height();
+
+    if( heightBefore != heightAfter )
+      $(window).scrollTop($(window).scrollTop() + heightAfter - heightBefore);
+
+    updateFirst();
+  })
+
+}
+
+</script>
+
+{% endblock %}

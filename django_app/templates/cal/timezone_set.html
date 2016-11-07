@@ -1,0 +1,23 @@
+{% load tz %}
+{% get_current_timezone as TIME_ZONE %}
+<form action="{% url 'cal:timezone_set' %}" method="POST">
+  {% csrf_token %}
+  <label for="timezone">Time zone:</label>
+  <select name="timezone">
+    {% for tz in timezones %}
+    <option value="{{ tz }}"
+      {% if tz == TIME_ZONE %}selected="selected"{% endif %}>{{ tz }}
+    </option>
+    {% endfor %}
+  </select>
+  <label for="firstweekday">First week day:</label>
+  <select name="firstweekday">
+    {% for week in weeks %}
+    <option value="{{ forloop.counter0 }}"
+      {% if forloop.counter0 == firstweekday %}selected="selected"{% endif %}>
+      {{ week }}
+    </option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Set">
+</form>

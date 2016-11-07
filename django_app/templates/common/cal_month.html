@@ -1,0 +1,50 @@
+{% extends 'common/base.html' %}
+{% block content %}
+<div class="page-header text-center">
+  <h2>
+    {% if prev_year %}
+    <a href="{% url 'cal:cal_month' prev_year.0 prev_year.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-backward"></span></small>
+    {% if prev_year %}</a>{% endif %}
+
+    {% if prev_month %}
+    <a href="{% url 'cal:cal_month' prev_month.0 prev_month.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-chevron-left"></span></small>
+    {% if prev_month %}</a>{% endif %}
+
+    <span>Month Calendar <small>{{ cur_month.0 }}-{{ cur_month.1 }}</small></span>
+
+    {% if next_month %}
+    <a href="{% url 'cal:cal_month' next_month.0 next_month.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-chevron-right"></span></small>
+    {% if next_month %}</a>{% endif %}
+
+    {% if next_year %}
+    <a href="{% url 'cal:cal_month' next_year.0 next_year.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-forward"></span></small>
+    {% if next_year %}</a>{% endif %}
+
+  </h2>
+</div>
+
+<table class="table table-bordered">
+  <tr>
+    {% for daytup in weekheader %}
+    <th {% if daytup.0 == 6 %}class="danger"{% endif %}>{{ daytup.1 }}</th>
+    {% endfor %}
+  </tr>
+  {% for row in monthdays %}
+  <tr>
+    {% for day in row %}
+    <td {% if day.0 == today %}class="success"{% endif %}>
+      {% if day.0 != 0 %}{{ day.0 }}{% endif %}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

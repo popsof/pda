@@ -1,0 +1,13 @@
+{% for row in monthdays %}
+<tr>
+  {% if forloop.first %}
+  <td year="{{ year }}" month="{{ month }}" rowspan="{{ monthdays|length }}">
+    {{ year }}<br>{{ month }}
+  </td>
+  {% endif %}
+  {% for day in row %}
+  <td {% if day.0 == today %}id="id-today" class="success"{% elif day.1 == 6 %}class="danger"{% endif %}>
+    {% if day.0 != 0 %}{{ day.0 }}{% endif %}</td>
+  {% endfor %}
+</tr>
+{% endfor %}

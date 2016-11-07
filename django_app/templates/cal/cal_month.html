@@ -1,0 +1,184 @@
+{% extends 'common/base.html' %}
+{% block content %}
+<div class="page-header text-center">
+  <h2>
+    {% if prev_year %}
+    <a href="{% url 'cal:cal_month' prev_year.0 prev_year.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-backward"></span></small>
+    {% if prev_year %}</a>{% endif %}
+
+    {% if prev_month %}
+    <a href="{% url 'cal:cal_month' prev_month.0 prev_month.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-chevron-left"></span></small>
+    {% if prev_month %}</a>{% endif %}
+
+    <span>Month Calendar <small>{{ cur_month.0 }}-{{ cur_month.1 }}</small></span>
+
+    {% if next_month %}
+    <a href="{% url 'cal:cal_month' next_month.0 next_month.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-chevron-right"></span></small>
+    {% if next_month %}</a>{% endif %}
+
+    {% if next_year %}
+    <a href="{% url 'cal:cal_month' next_year.0 next_year.1 %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-forward"></span></small>
+    {% if next_year %}</a>{% endif %}
+
+  </h2>
+</div>
+
+<table class="table table-bordered month-table">
+  <tr>
+    {% for daytup in weekheader %}
+    <th {% if daytup.0 == 6 %}class="danger"{% endif %}>{{ daytup.1 }}</th>
+    {% endfor %}
+  </tr>
+  {% for row in monthdays %}
+  <tr>
+    {% for day in row %}
+    <td {% if day.0 == today %}class="success"{% endif %}>
+      {% if day.0 != 0 %}
+      {{ day.0 }}
+      <a><span class="glyphicon glyphicon-pencil"
+        onclick="editMemo({{ day.0 }})"></span></a>
+      <p id="calMemo{{ day.0 }}"></p>
+      {% endif %}
+      </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Open modal for @mdo</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@fat">Open modal for @fat</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">Open modal for @getbootstrap</button>
+
+<div class="modal fade" id="exampleModal" data-backdrop="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">New message</h4>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Recipient:</label>
+            <input type="text" class="form-control" id="recipient-name">
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="control-label">Message:</label>
+            <textarea class="form-control" id="message-text"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" onclick="sendMessage()" class="btn btn-primary">Send message</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="memoModal" data-backdrop="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h5 class="modal-title" id="exampleModalLabel">edit memo</h4>
+      </div>
+      <div class="modal-body">
+        <form id="memoForm">
+          {% csrf_token %}
+          {% for field in form %}
+          {{ field.errors }}{{ field }}
+          {% endfor %}
+          <!-- <textarea class="form-control" id="memoText" rows="5"></textarea> -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveMemo()" >저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+var cur_year = {{ cur_month.0 }}
+var cur_month = {{ cur_month.1 }}
+
+var memoForm;
+
+$(document).ready(function() {
+  memoForm = $('#memoForm');
+
+  $('#exampleModal').on('shown.bs.modal', function () {
+    // $('#recipient-name').focus()
+   $(this).find('input:text:visible:first').focus();
+  })
+})
+
+
+var selectedDay = 0
+
+function sendMessage()
+{
+  $.ajax({
+    method: 'POST',
+    url: '/'
+  })
+  alert('SendMessage');
+}
+
+
+function editMemo( day )
+{
+  selectedDay = day
+  memoForm.find('ul.errorlist').remove();
+  var calMemo = $('#calMemo' + selectedDay );
+  var textEdit = $('#memoText');
+  textEdit.val( calMemo.html() )
+  $('#memoModal').modal()
+}
+
+function saveMemo()
+{
+  if( selectedDay == 0 ) return;
+  var textEdit = $('#memoText');
+  var calMemo = $('#calMemo' + selectedDay );
+  // calMemo.text( textEdit.val() );
+  // $('#memoModal').modal('hide')
+  $.ajax({
+    method: 'POST',
+    url: '/cal/month/' + cur_year + '/' + cur_month
+          + '/set_memo/' + selectedDay + '/',
+    data: { memo: textEdit.val() }
+  })
+    .done(function(response) {
+      console.log(response)
+      // console.log(textEdit.val())
+      // calMemo.text(textEdit.val())
+      var result = response.result;
+      if( result == 'ok' )
+      {
+        calMemo.text( response.memo );
+        $('#memoModal').modal('hide')
+      }
+      else {
+        memoForm.html( response.form );
+      }
+    })
+    .fail(function(response) {
+      console.log(response);
+    });
+}
+</script>
+{% endblock %}

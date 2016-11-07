@@ -1,0 +1,19 @@
+<div class="{{ grid_class }}">
+  <table class="table table-bordered" year="{{ year }}" month="{{ month }}">
+    <caption><strong>{{ year }}-{{ month }}</strong></caption>
+    <tr>
+      {% for daytup in weekheader %}
+      <th {% if daytup.0 == 6 %}class="danger"{% endif %}>{{ daytup.1 }}</th>
+      {% endfor %}
+    </tr>
+    {% for row in monthdays %}
+    <tr>
+      {% for day in row %}
+      <td {% if day == today %}id="id-today" class="success"{% endif %}>
+        {% if day != 0 %}{{ day }}{% endif %}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% if need_clearfix %}<div class="clearfix"></div>{% endif %}

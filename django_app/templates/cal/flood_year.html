@@ -1,0 +1,11 @@
+{% extends 'common/base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div id="id-maindiv" class="row">
+{{ rend_data }}
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/flood_year.js' %}"></script>
+{% endblock %}

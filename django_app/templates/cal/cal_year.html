@@ -1,0 +1,48 @@
+{% extends 'common/base.html' %}
+{% block content %}
+<div class="page-header text-center">
+  <h2>
+    {% if prev_year %}
+    <a href="{% url 'cal:cal_year' prev_year %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-backward"></span></small>
+    {% if prev_year %}</a>{% endif %}
+
+    <span>Year Calendar <small>{{ cur_year }}</small></span>
+
+    {% if next_year %}
+    <a href="{% url 'cal:cal_year' next_year %}">
+    {% endif %}
+    <small><span class="glyphicon glyphicon-forward"></span></small>
+    {% if next_year %}</a>{% endif %}
+
+  </h2>
+</div>
+
+<div class="row">
+{% for month in yeardays %}
+{% with mon=forloop.counter %}
+<div class="col-md-4">
+<table class="table table-bordered">
+  <caption><strong>{{ cur_year }}-{{ mon }}</strong></caption>
+  <tr>
+    {% for daytup in weekheader %}
+    <th {% if daytup.0 == 6 %}class="danger"{% endif %}>{{ daytup.1 }}</th>
+    {% endfor %}
+  </tr>
+  {% for row in month %}
+  <tr>
+    {% for day in row %}
+    <td {% if mon == today.0 and day.0 == today.1 %}class="success"{% endif %}>
+      {% if day.0 != 0 %}{{ day.0 }}{% endif %}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+</div>
+{% if mon == 3 or mon == 6 or mon == 9 or mon == 12 %}
+<div class="clearfix"></div>
+{% endif %}
+{% endwith %}
+{% endfor %}
+{% endblock %}

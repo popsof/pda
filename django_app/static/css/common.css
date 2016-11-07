@@ -1,0 +1,14 @@
+body {
+  padding-top: 70px;
+}
+
+table.month-table td, table.month-table th {
+  width: 10%;
+  height: 120px;
+}
+
+table.month-table td p, table.month-table th p {
+  white-space: pre-wrap;
+}
+
+/*# sourceMappingURL=common.css.map */
